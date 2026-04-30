@@ -1,0 +1,6 @@
+Most banks have 6 digit codes or 3 digit codes
+2 Nigerian banks have 5 digit codes
+50211
+50304
+
+Current algorithm skips over non-3 digit code banks
