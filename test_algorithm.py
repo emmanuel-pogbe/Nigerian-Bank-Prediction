@@ -9,21 +9,32 @@ def get_possible_banks(account_no):
     if len(account_no) != 10:
         print("Number must be 10 digits")
         return None
+    # Check if account number looks like a phone number
     check_digit = account_no[-1]
     serial_number = account_no[:-1]
-    possible_codes =get_list_of_possible_codes(serial_number, check_digit)
+    possible_codes = set(get_list_of_possible_codes(serial_number, check_digit))
+    
+    if looks_like_phone_number(account_no):
+        possible_codes.add("305") # Opay
+        possible_codes.add("100033") # Palmpay
+        possible_codes.add("090405") # Moniepoint 
+
     for code in possible_codes:
         banks_names.append(get_bank_name_from_code(code))
+
     print("**********POSSIBLE BANKS**********")
     for name in banks_names:
         print(name)
-
     print("Number of banks found: ",len(banks_names))
 
 def get_bank_name_from_code(code):
     for bank in banks.banks:
         if code == bank["code"]:
             return bank["name"]
+
+def looks_like_phone_number(account_no):
+    starts = ["80","81","70","71","90","91"]
+    return str(account_no[:2]) in starts
 
 def get_list_of_possible_codes(serial_number, check_digit):
     list_of_possible_codes = []
