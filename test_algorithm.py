@@ -1,6 +1,7 @@
 import banks
 import os
 from dotenv import load_dotenv
+import helpers
 
 load_dotenv()
 def get_possible_banks(account_no):
@@ -20,12 +21,12 @@ def get_possible_banks(account_no):
         possible_codes.add("090405") # Moniepoint 
 
     for code in possible_codes:
-        banks_names.append(get_bank_name_from_code(code))
-
+        banks_names.append((code,get_bank_name_from_code(code)))
     print("**********POSSIBLE BANKS**********")
-    for name in banks_names:
+    for code,name in banks_names:
         print(name)
     print("Number of banks found: ",len(banks_names))
+    return banks_names
 
 def get_bank_name_from_code(code):
     for bank in banks.banks:
@@ -87,10 +88,41 @@ def get_all_normalized_bank_codes():
     return list_of_all_codes
 
 
-TEST_ACCOUNT_NUMBERS = os.getenv("TEST_ACCOUNT_NUMBERS","1901880678").split(",")
+TEST_ACCOUNT_NUMBERS = os.getenv("TEST_ACCOUNT_NUMBERS","1901880678").split(",") # No longer in use
+TUPLE_LIST_ACCOUNT_NUMBERS = helpers.parse_multiple_tuple_strings(os.getenv("TUPLE_LIST_ACCOUNT_NUMBERS"))
 
-for account_no in TEST_ACCOUNT_NUMBERS:
-    get_possible_banks(account_no.strip())
-    print("\n\n\n\n\n\n")
 
-print("Amount of work done: ",len(TEST_ACCOUNT_NUMBERS))
+def main_with_account_numbers_list(): # Simpler testing version using TEST_ACCOUNT_NUMBERS variable
+    
+    for account_no in TEST_ACCOUNT_NUMBERS:
+        get_possible_banks(account_no.strip())
+        print("\n\n\n\n\n\n")
+
+
+def main_with_tuple_list(): # More robust testing version using TUPLE_LIST_ACCOUNT_NUMBERS variable
+    success_matches = 0
+    failed_matches = 0
+    failed_banks = set()
+    for account_number_with_bank_code in TUPLE_LIST_ACCOUNT_NUMBERS:
+        possible_codes_with_bank_names = get_possible_banks(account_number_with_bank_code[0])
+        bank_code = account_number_with_bank_code[1]
+        bank_name_from_code = get_bank_name_from_code(bank_code)
+        if (bank_code,bank_name_from_code) in possible_codes_with_bank_names:
+            print(f"Match was found for bank: {bank_name_from_code}")
+            success_matches += 1
+        else:
+            print(f"No match was found for bank: {bank_name_from_code} account number: {account_number_with_bank_code[0]}")
+            failed_matches += 1
+            failed_banks.add(bank_name_from_code)
+        print("\n\n\n\n\n\n\n")
+
+    print("FINAL REPORT")
+    print("Total number of demo data in tuple list: ",len(TUPLE_LIST_ACCOUNT_NUMBERS))
+    print(f"Number of successful matches: {success_matches}")
+    print(f"Number of failed matches: {failed_matches}")
+    print(f"Failed banks: {failed_banks}")
+
+
+if __name__ == "__main__":
+    main_with_account_numbers_list()
+    # main_with_tuple_list()
