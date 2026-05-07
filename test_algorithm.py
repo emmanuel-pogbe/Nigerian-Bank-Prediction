@@ -103,8 +103,10 @@ def main_with_tuple_list(): # More robust testing version using TUPLE_LIST_ACCOU
     success_matches = 0
     failed_matches = 0
     failed_banks = set()
+    total_list = []
     for account_number_with_bank_code in TUPLE_LIST_ACCOUNT_NUMBERS:
         possible_codes_with_bank_names = get_possible_banks(account_number_with_bank_code[0])
+        total_list.append(len(possible_codes_with_bank_names))
         bank_code = account_number_with_bank_code[1]
         bank_name_from_code = get_bank_name_from_code(bank_code)
         if (bank_code,bank_name_from_code) in possible_codes_with_bank_names:
@@ -121,8 +123,8 @@ def main_with_tuple_list(): # More robust testing version using TUPLE_LIST_ACCOU
     print(f"Number of successful matches: {success_matches}")
     print(f"Number of failed matches: {failed_matches}")
     print(f"Failed banks: {failed_banks}")
-
+    print(f"Average number of possible banks: {sum(total_list)/len(total_list)}")
 
 if __name__ == "__main__":
-    main_with_account_numbers_list()
-    # main_with_tuple_list()
+    # main_with_account_numbers_list()
+    main_with_tuple_list()
