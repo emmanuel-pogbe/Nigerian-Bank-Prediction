@@ -1154,7 +1154,7 @@ banks = [
     "code": "090405",
     "nibss_bank_code": "090405",
     "country": "NG",
-    "popularity": "9"
+    "popularity": "10"
   },
   {
     "name": "Mainland MICROFINANCE BANK",
