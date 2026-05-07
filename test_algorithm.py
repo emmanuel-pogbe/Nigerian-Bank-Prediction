@@ -32,14 +32,9 @@ def get_possible_banks(account_no):
         bank_name_and_popularity = get_bank_name_and_popularity_from_code(code)
         popularity = int(bank_name_and_popularity[1])
         if popularity>8:
-            print("Possible bank: ",bank_name_and_popularity[0])
             banks_names.append((code,bank_name_and_popularity))
     banks_names.sort(key=sort_func,reverse=True)
     banks_names = banks_names[:6]
-    print("**********POSSIBLE BANKS**********")
-    for code,name_and_popularity in banks_names:
-        print(name_and_popularity[0])
-
     return banks_names # ->shape -> [(code,[name,popularity])]
 
 def sort_func(bank_code_and_name_and_popularity):
