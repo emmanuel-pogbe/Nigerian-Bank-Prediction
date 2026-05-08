@@ -31,3 +31,5 @@ more popular banks get a popularity of >8
 for the resulting list of the NUBAN algorithm, any bank with a popularity less than 8 won't be appended to the resulting list, reducing average output from ~25 to ~3
 Next: Try out parallel_processing.py on resulting list to get ~1 bank result
 Then code cleanup and finalization, maybe make it into a module or an API idk
+
+v4. Successfully implemented parallel processing -> This solution is not bad, but takes about 4 seconds or less to get a result -> If speed is a concern, stick to just the math (NUBAN) and phone number checks, if accuracy is a concern, stick to the parallel_processing solution (math + calling external API X number of times)
