@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUBAN Account Lookup</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: sans-serif;
+            font-size: 14px;
+            color: #111;
+            padding: 2rem;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+        }
+
+        /* ── Input form ── */
+        .form-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-wrapper label {
+            font-size: 0.95rem;
+        }
+
+        .form-wrapper input[type="text"] {
+            width: 220px;
+            padding: 0.4rem 0.6rem;
+            font-size: 1rem;
+            border: 1px solid #888;
+            text-align: center;
+            letter-spacing: 0.1em;
+        }
+
+        .form-wrapper button {
+            padding: 0.4rem 1.2rem;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
+        /* ── Error banner ── */
+        .error-banner {
+            margin: 1rem auto;
+            max-width: 480px;
+            padding: 0.6rem 1rem;
+            border: 1px solid #888;
+            background: #f8f8f8;
+            text-align: center;
+        }
+
+        /* ── Results list ── */
+        .results-section {
+            margin: 1.5rem auto;
+            max-width: 480px;
+        }
+
+        .results-section h2 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .results-section ul {
+            padding-left: 1.2rem;
+        }
+
+        .results-section li {
+            margin-bottom: 0.25rem;
+        }
+
+        /* ── No-results message ── */
+        .no-results {
+            margin: 1.5rem auto;
+            max-width: 480px;
+            text-align: center;
+        }
+
+        /* ── Explainer cards ── */
+        .explainer-section {
+            margin: 1.5rem auto;
+            max-width: 900px;
+        }
+
+        .explainer-section h2 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .explainer-card {
+            border: 1px solid #ccc;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .explainer-card h3 {
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Grid of 15 columns, one per digit */
+        .digit-grid {
+            display: grid;
+            grid-template-columns: repeat(15, 1fr);
+            gap: 2px;
+            margin-bottom: 0.25rem;
+        }
+
+        .grid-cell {
+            text-align: center;
+            padding: 0.3rem 0.1rem;
+            font-size: 0.85rem;
+            border: 1px solid #ddd;
+        }
+
+        /* Row labels */
+        .row-label {
+            font-size: 0.75rem;
+            color: #555;
+            margin-bottom: 0.15rem;
+        }
+
+        /* Digit boxes */
+        .digit-box {
+            font-weight: bold;
+        }
+
+        .code-digit {
+            background: #eee;
+        }
+
+        .serial-digit {
+            background: #fff;
+        }
+
+        /* Weight and product rows */
+        .weight-cell {
+            font-size: 0.8rem;
+        }
+
+        .product-cell {
+            font-size: 0.8rem;
+        }
+
+        /* Footer summary */
+        .explainer-footer {
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .explainer-footer span {
+            white-space: nowrap;
+        }
+
+        .match-indicator {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>NUBAN Account Lookup</h1>
+
+    <!-- Input form -->
+    <div class="form-wrapper">
+        <label for="account_number">Enter your account number</label>
+        <form method="POST">
+            <div class="form-wrapper">
+                <input
+                    type="text"
+                    id="account_number"
+                    name="account_number"
+                    value="{{ account_number }}"
+                    maxlength="10"
+                    placeholder="10-digit account number"
+                >
+                <button type="submit">Process</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Task 5.1: Error banner -->
+    {% if error %}
+    <div class="error-banner" role="alert">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- Task 5.1: Results list -->
+    {% if banks %}
+    <div class="results-section">
+        <h2>Possible banks</h2>
+        <ul>
+            {% for bank in banks %}
+            <li>{{ bank.bank_name }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- Task 5.1: No-results message -->
+    {% if no_results %}
+    <div class="no-results">
+        No matching banks were found for this account number.
+    </div>
+    {% endif %}
+
+    <!-- Task 5.2: Algorithm Explainer -->
+    {% if banks %}
+    <div class="explainer-section">
+        <h2>Algorithm Explainer</h2>
+
+        {% for bank in banks %}
+        <div class="explainer-card">
+            <h3>{{ bank.bank_name }} &mdash; code {{ bank.bank_code }} (normalized: {{ bank.normalized_code }})</h3>
+
+            <!-- Row label: digits -->
+            <div class="row-label">Check string digits (first 6 = bank code, last 9 = serial number)</div>
+
+            <!-- Row 1: digit boxes -->
+            <div class="digit-grid">
+                {% for digit in bank.digits %}
+                <div class="grid-cell digit-box {% if loop.index0 < 6 %}code-digit{% else %}serial-digit{% endif %}">
+                    {{ digit }}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Row label: weights -->
+            <div class="row-label">Weights</div>
+
+            <!-- Row 2: weights -->
+            <div class="digit-grid">
+                {% for digit in bank.digits %}
+                <div class="grid-cell weight-cell">
+                    {{ bank.weights[loop.index0] }}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Row label: products -->
+            <div class="row-label">Products (digit &times; weight)</div>
+
+            <!-- Row 3: products -->
+            <div class="digit-grid">
+                {% for digit in bank.digits %}
+                <div class="grid-cell product-cell">
+                    {{ bank.products[loop.index0] }}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Footer: sum, checksum, check digit, match -->
+            <div class="explainer-footer">
+                <span>Weighted sum: <strong>{{ bank.weighted_sum }}</strong></span>
+                <span>Checksum: <strong>{{ bank.checksum }}</strong></span>
+                <span>Check digit: <strong>{{ bank.check_digit }}</strong></span>
+                <span class="match-indicator">
+                    {% if bank.match %}&#10003; Match{% else %}&#10007; No match{% endif %}
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</body>
+</html>
