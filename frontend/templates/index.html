@@ -167,7 +167,9 @@
                     name="account_number"
                     value="{{ account_number }}"
                     maxlength="10"
+                    minlength="10"
                     placeholder="10-digit account number"
+                    required
                 >
                 <button type="submit">Process</button>
             </div>
@@ -178,11 +180,11 @@
         {{ error }}
     </div>
     {% endif %}
-    {% if banks %}
+    {% if all_banks %}
     <div class="results-section">
         <h2>Possible banks</h2>
         <ul>
-            {% for bank in banks %}
+            {% for bank in all_banks %}
             <li>{{ bank.bank_name }}</li>
             {% endfor %}
         </ul>
@@ -194,17 +196,17 @@
         No matching banks were found for this account number.
     </div>
     {% endif %}
-    {% if banks %}
+    {% if nuban_banks %}
     <div class="explainer-section">
         <h2>Algorithm Explainer</h2>
 
-        {% for bank in banks %}
+        {% for bank in nuban_banks %}
             {% if bank.checksum == bank.check_digit %}
                 <div class="explainer-card">
                     <h3>{{ bank.bank_name }} - code {{ bank.bank_code }} (normalized: {{ bank.normalized_code }})</h3>
 
                     <!-- Row label: digits -->
-                    <div class="row-label">Check string digits (first 6 = bank code, last 9 = serial number)</div>
+                    <div class="row-label">Check string digits (first 6 = normalized bank code, last 9 = serial number)</div>
                     <div class="digit-grid">
                         {% for digit in bank.digits %}
                         <div class="grid-cell digit-box {% if loop.index0 < 6 %}code-digit{% else %}serial-digit{% endif %}">
@@ -240,7 +242,17 @@
                 </div>
             {% endif %}
         {% endfor %}
-    </div>
+        {% if heuristics_banks%}
+                <h2>Banks gotten from heurisitics</h2>
+                <ul>
+                    {%for bank in heuristics_banks%}
+                    <li>{{ bank.bank_name }}</li>
+                    {%endfor%}
+                </ul>
+                <p>This step takes into account, nigerian banks that don't follow the algorithm, but use other number generation strategies like the users phone number</p>
+                <p>e.g if looks_like_phone_number(account_number) append these banks</p>
+        {%endif%}
+    </div>  
     {% endif %}
 
 </body>

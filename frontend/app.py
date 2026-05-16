@@ -73,7 +73,6 @@ def build_explainer(bank_code: str, bank_name: str, account_number: str) -> dict
     products = compute_products(check_string)
     weighted_sum = compute_weighted_sum(products)
     checksum = compute_checksum(weighted_sum)
-
     return {
         "bank_name": bank_name,
         "bank_code": bank_code,
@@ -85,7 +84,7 @@ def build_explainer(bank_code: str, bank_name: str, account_number: str) -> dict
         "weighted_sum": weighted_sum,
         "checksum": checksum,
         "check_digit": int(check_digit),
-        "match": True,
+        "match": checksum == int(check_digit)
     }
 
 
@@ -97,7 +96,9 @@ def index():
     """
     account_number = ""
     error = None
-    banks = None
+    all_banks = []
+    nuban_banks = []
+    heuristics_banks = []
     no_results = False
 
     if request.method == "POST":
@@ -120,16 +121,20 @@ def index():
                 if len(results) == 0:
                     no_results = True
                 else:
-                    banks = [
-                        build_explainer(bank_code, bank_name, account_number)
-                        for bank_code, bank_name in results
-                    ]
-
+                    for bank_code, bank_name in results:
+                        explainer_dict = build_explainer(bank_code, bank_name, account_number)
+                        all_banks.append(explainer_dict)
+                        if explainer_dict.get("match"):
+                            nuban_banks.append(explainer_dict)
+                        else:
+                            heuristics_banks.append(explainer_dict)
     return render_template(
         "index.html",
         account_number=account_number,
         error=error,
-        banks=banks,
+        all_banks=all_banks,
+        nuban_banks=nuban_banks,
+        heuristics_banks=heuristics_banks,
         no_results=no_results,
     )
 
