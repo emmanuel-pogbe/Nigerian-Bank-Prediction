@@ -23,8 +23,6 @@
             margin-bottom: 1.5rem;
             font-size: 1.4rem;
         }
-
-        /* ── Input form ── */
         .form-wrapper {
             display: flex;
             flex-direction: column;
@@ -37,7 +35,7 @@
         }
 
         .form-wrapper input[type="text"] {
-            width: 220px;
+            width: 250px;
             padding: 0.4rem 0.6rem;
             font-size: 1rem;
             border: 1px solid #888;
@@ -50,8 +48,6 @@
             font-size: 0.95rem;
             cursor: pointer;
         }
-
-        /* ── Error banner ── */
         .error-banner {
             margin: 1rem auto;
             max-width: 480px;
@@ -60,8 +56,6 @@
             background: #f8f8f8;
             text-align: center;
         }
-
-        /* ── Results list ── */
         .results-section {
             margin: 1.5rem auto;
             max-width: 480px;
@@ -79,15 +73,11 @@
         .results-section li {
             margin-bottom: 0.25rem;
         }
-
-        /* ── No-results message ── */
         .no-results {
             margin: 1.5rem auto;
             max-width: 480px;
             text-align: center;
         }
-
-        /* ── Explainer cards ── */
         .explainer-section {
             margin: 1.5rem auto;
             max-width: 900px;
@@ -108,8 +98,6 @@
             font-size: 0.95rem;
             margin-bottom: 0.75rem;
         }
-
-        /* Grid of 15 columns, one per digit */
         .digit-grid {
             display: grid;
             grid-template-columns: repeat(15, 1fr);
@@ -123,15 +111,11 @@
             font-size: 0.85rem;
             border: 1px solid #ddd;
         }
-
-        /* Row labels */
         .row-label {
             font-size: 0.75rem;
             color: #555;
             margin-bottom: 0.15rem;
         }
-
-        /* Digit boxes */
         .digit-box {
             font-weight: bold;
         }
@@ -152,8 +136,6 @@
         .product-cell {
             font-size: 0.8rem;
         }
-
-        /* Footer summary */
         .explainer-footer {
             margin-top: 0.75rem;
             font-size: 0.85rem;
@@ -191,15 +173,11 @@
             </div>
         </form>
     </div>
-
-    <!-- Task 5.1: Error banner -->
     {% if error %}
     <div class="error-banner" role="alert">
         {{ error }}
     </div>
     {% endif %}
-
-    <!-- Task 5.1: Results list -->
     {% if banks %}
     <div class="results-section">
         <h2>Possible banks</h2>
@@ -211,68 +189,56 @@
     </div>
     {% endif %}
 
-    <!-- Task 5.1: No-results message -->
     {% if no_results %}
     <div class="no-results">
         No matching banks were found for this account number.
     </div>
     {% endif %}
-
-    <!-- Task 5.2: Algorithm Explainer -->
     {% if banks %}
     <div class="explainer-section">
         <h2>Algorithm Explainer</h2>
 
         {% for bank in banks %}
-        <div class="explainer-card">
-            <h3>{{ bank.bank_name }} &mdash; code {{ bank.bank_code }} (normalized: {{ bank.normalized_code }})</h3>
+            {% if bank.checksum == bank.check_digit %}
+                <div class="explainer-card">
+                    <h3>{{ bank.bank_name }} - code {{ bank.bank_code }} (normalized: {{ bank.normalized_code }})</h3>
 
-            <!-- Row label: digits -->
-            <div class="row-label">Check string digits (first 6 = bank code, last 9 = serial number)</div>
+                    <!-- Row label: digits -->
+                    <div class="row-label">Check string digits (first 6 = bank code, last 9 = serial number)</div>
+                    <div class="digit-grid">
+                        {% for digit in bank.digits %}
+                        <div class="grid-cell digit-box {% if loop.index0 < 6 %}code-digit{% else %}serial-digit{% endif %}">
+                            {{ digit }}
+                        </div>
+                        {% endfor %}
+                    </div>
 
-            <!-- Row 1: digit boxes -->
-            <div class="digit-grid">
-                {% for digit in bank.digits %}
-                <div class="grid-cell digit-box {% if loop.index0 < 6 %}code-digit{% else %}serial-digit{% endif %}">
-                    {{ digit }}
+                    <div class="row-label">Constant weights</div>
+                    <div class="digit-grid">
+                        {% for digit in bank.digits %}
+                        <div class="grid-cell weight-cell">
+                            {{ bank.weights[loop.index0] }}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="row-label">Products (digit &times; weight)</div>
+                    <div class="digit-grid">
+                        {% for digit in bank.digits %}
+                        <div class="grid-cell product-cell">
+                            {{ bank.products[loop.index0] }}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="explainer-footer">
+                        <span>Sum of the products: <strong>{{ bank.weighted_sum }}</strong></span>
+                        <span>Checksum: <strong>{{ bank.checksum }}</strong> -> [(10 - {{bank.weighted_sum}}%10)%10] </span>
+                        <span>Check digit(last digit of account number): <strong>{{ bank.check_digit }}</strong></span>
+                        <span class="match-indicator">Matches!</span>
+                    </div>
                 </div>
-                {% endfor %}
-            </div>
-
-            <!-- Row label: weights -->
-            <div class="row-label">Weights</div>
-
-            <!-- Row 2: weights -->
-            <div class="digit-grid">
-                {% for digit in bank.digits %}
-                <div class="grid-cell weight-cell">
-                    {{ bank.weights[loop.index0] }}
-                </div>
-                {% endfor %}
-            </div>
-
-            <!-- Row label: products -->
-            <div class="row-label">Products (digit &times; weight)</div>
-
-            <!-- Row 3: products -->
-            <div class="digit-grid">
-                {% for digit in bank.digits %}
-                <div class="grid-cell product-cell">
-                    {{ bank.products[loop.index0] }}
-                </div>
-                {% endfor %}
-            </div>
-
-            <!-- Footer: sum, checksum, check digit, match -->
-            <div class="explainer-footer">
-                <span>Weighted sum: <strong>{{ bank.weighted_sum }}</strong></span>
-                <span>Checksum: <strong>{{ bank.checksum }}</strong></span>
-                <span>Check digit: <strong>{{ bank.check_digit }}</strong></span>
-                <span class="match-indicator">
-                    {% if bank.match %}&#10003; Match{% else %}&#10007; No match{% endif %}
-                </span>
-            </div>
-        </div>
+            {% endif %}
         {% endfor %}
     </div>
     {% endif %}

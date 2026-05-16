@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 logger = logging.getLogger(__name__)
 
-# NUBAN checksum weights (15 positions)
+# Check ../demo/test_algorithm.py
 WEIGHTS = [3, 7, 3, 3, 7, 3, 3, 7, 3, 3, 7, 3, 3, 7, 3]
 
 
@@ -84,7 +84,7 @@ def build_explainer(bank_code: str, bank_name: str, account_number: str) -> dict
         "products": products,
         "weighted_sum": weighted_sum,
         "checksum": checksum,
-        "check_digit": check_digit,
+        "check_digit": int(check_digit),
         "match": True,
     }
 
@@ -103,19 +103,17 @@ def index():
     if request.method == "POST":
         account_number = request.form.get("account_number", "")
 
-        # Task 3.1: Input validation — length check first, then character check
         if len(account_number) != 10:
             error = "Account number must be exactly 10 digits."
         elif not account_number.isdigit():
             error = "Account number must contain digits only."
 
-        # Task 3.2: Call py_nuban and build explainer data when validation passes
         if error is None:
             try:
                 results = py_nuban.get_possible_banks(account_number)
             except Exception as exc:
                 logger.error("py_nuban.get_possible_banks raised an exception: %s", exc, exc_info=True)
-                error = "An error occurred while processing the account number. Please try again."
+                error = "An unkown error occurred while processing the account number. Please try again."
                 results = None
 
             if results is not None:
