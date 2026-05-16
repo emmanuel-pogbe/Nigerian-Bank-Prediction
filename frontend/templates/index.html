@@ -16,6 +16,9 @@
             font-size: 14px;
             color: #111;
             padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         h1 {
@@ -151,6 +154,24 @@
         .match-indicator {
             font-weight: bold;
         }
+        .page-footer {
+            margin-top: auto;
+            padding-top: 1.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #555;
+            border-top: 1px solid #ddd;
+        }
+
+        .page-footer a {
+            color: #111;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .page-footer a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -254,6 +275,12 @@
         {%endif%}
     </div>  
     {% endif %}
-
+    <footer class="page-footer">
+        <span>
+            <a href="https://github.com/emmanuel-pogbe/py-nuban" target="_blank">View on GitHub</a>
+            |
+            <a href="https://www.policyvault.africa/wp-content/uploads/2024/09/NGA2313.pdf" target="_blank">Read more about the NUBAN algorithm (PDF link)</a>
+        </span>
+    </footer>
 </body>
 </html>
