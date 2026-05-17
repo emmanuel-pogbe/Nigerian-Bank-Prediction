@@ -13,7 +13,7 @@ def get_possible_banks(account_no):
     # Check if account number looks like a phone number
     check_digit = account_no[-1]
     serial_number = account_no[:-1]
-    possible_codes = set(get_list_of_possible_codes(serial_number, check_digit))
+    possible_codes = get_set_of_possible_codes(serial_number, check_digit)
     
     # I suck at python - what is this logic
     if looks_like_phone_number(account_no):
@@ -54,25 +54,29 @@ def looks_like_moniepoint_number(account_no):
     starts = ["4","5","6","8","9"]
     return str(account_no[:1]) in starts
 
-def get_list_of_possible_codes(serial_number, check_digit):
-    list_of_possible_codes = []
-    weights = [3,7,3,3,7,3,3,7,3,3,7,3,3,7,3]
+def get_set_of_possible_codes(serial_number, check_digit):
+    list_of_possible_codes = set()
+    full_weights = [3,7,3,3,7,3,3,7,3,3,7,3,3,7,3]
+    smaller_weights = [3,7,3,3,7,3,3,7,3,3,7,3]
     codes_list = get_all_normalized_bank_codes()
     for code_dict in codes_list:
-        sum = 0
+        big_sum_of_weights = 0
+        small_sum_of_weights = 0
         full_check = list(code_dict["normalized"]+serial_number)
+        smaller_check = list(code_dict["code"]+serial_number) if len(code_dict["code"]) == 3 else None
         if len(full_check) != 15:
             print("The full check is not 15 digits")
             raise Exception
-        for idx,weight in enumerate(weights):
-            sum = weight*int(full_check[idx]) + sum
-        if sum%10 == 0:
-            modul = 0
-        else:
-            modul = 10 - sum%10
-        
-        if str(modul) == check_digit:
-            list_of_possible_codes.append(code_dict["code"])
+        for idx,weight in enumerate(full_weights):
+            big_sum_of_weights = weight*int(full_check[idx]) + big_sum_of_weights
+            if smaller_check and idx < 12:
+                small_sum_of_weights = smaller_weights[idx]*int(smaller_check[idx]) + small_sum_of_weights
+        big_module = (10 - big_sum_of_weights%10)%10
+        small_module = (10-small_sum_of_weights%10)%10 if small_sum_of_weights else None
+        if str(big_module) == check_digit:
+            list_of_possible_codes.add(code_dict["code"])
+        if small_module and str(small_module) == check_digit:
+            list_of_possible_codes.add(code_dict["code"])
     return list_of_possible_codes
 
 def get_all_normalized_bank_codes():
