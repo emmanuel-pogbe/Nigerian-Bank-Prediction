@@ -103,6 +103,7 @@ def index():
 
     if request.method == "POST":
         account_number = request.form.get("account_number", "")
+        logger.info("Account number to process %s",account_number)
 
         if len(account_number) != 10:
             error = "Account number must be exactly 10 digits."
@@ -112,6 +113,7 @@ def index():
         if error is None:
             try:
                 results = py_nuban.get_possible_banks(account_number)
+                logger.info("Results for account %s is %s",account_number, str(results))
             except Exception as exc:
                 logger.error("py_nuban.get_possible_banks raised an exception: %s", exc, exc_info=True)
                 error = "An unkown error occurred while processing the account number. Please try again."
