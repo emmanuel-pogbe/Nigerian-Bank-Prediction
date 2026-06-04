@@ -130,11 +130,11 @@ def index():
                 else:
                     for bank_code, bank_name in results:
                         explainer_dict = build_explainer(bank_code, bank_name, account_number)
-                        all_banks.append(explainer_dict)
                         if explainer_dict.get("match"):
                             nuban_banks.append(explainer_dict)
                         else:
                             heuristics_banks.append(explainer_dict)
+                    all_banks = nuban_banks + heuristics_banks
     return render_template(
         "index.html",
         account_number=account_number,
